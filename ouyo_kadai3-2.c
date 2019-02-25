@@ -11,19 +11,12 @@ typedef struct tagPersonalData
 	char cPhoneNo[15];
 } PersonalData;
 
-// Step1関数ｰ
-BOOL SetPersonalData(PersonalData * data, unsigned short id,char * name, char * phoneNo);
-BOOL WritePersonalDataArray(PersonalData * dataArray, unsigned short num,char * fileName);
 
 // Step2関数ｰ
 BOOL OpenPersonalData(char * fileName, unsigned short * numRecords);
 BOOL ReadPersonalData(unsigned short pos, PersonalData * data);
 BOOL ClosePersonalData(void);
 BOOL GetPersonalData(PersonalData * data, unsigned short * id,char * name, char * phoneNo);
-
-// Step3関数ｰ
-BOOL SearchPersonalDataByID(unsigned short id, PersonalData * data);
-BOOL SearchPersonalDataByName(char * name, PersonalData * data);
 
 int main(void){
 	PersonalData data[10];
@@ -42,7 +35,7 @@ int main(void){
 // Step2-1関数ｰ
 	FILE *fp;
 	OpenPersonalData(char * fileName, unsigned short * numRecords){
-		/* ファイルのオープン */
+	/* ファイルのオープン */
 	int line = 0;
 	char buf[BUF_SIZE];
   if ((fp = fopen(fileName, "r")) == NULL) {
@@ -50,6 +43,8 @@ int main(void){
   }
   while (fgets(buf, BUF_SIZE, fp) != NULL) {
     line++;
+		printf("%s\n", buf);
+		*numRecords = line;
   }
 	*numRecords = line;
 	printf("line = %d\n", *numRecords);
@@ -58,7 +53,7 @@ int main(void){
 
 // Step2-2関数ｰ
 ReadPersonalData(unsigned short pos, PersonalData * data){
-	*(data + pos) =  
+
 }
 // Step2-3関数ｰ
 ClosePersonalData(void){
