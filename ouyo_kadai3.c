@@ -83,7 +83,7 @@ int main(void){
 			id++;
 		}
 	}
-	unsigned short num = 9;
+	unsigned short num = count;
 	char fileName[20] = "data.txt";
 	// Step1-2関数ｰ
 	j = WritePersonalDataArray(data, num, fileName);
@@ -127,7 +127,7 @@ WritePersonalDataArray(PersonalData * dataArray, unsigned short num,char * fileN
 		return FALSE;
   }
 	for(i=0; i<num; i++){
-			fprintf(outputfile,"%d, %s, %s\n", dataArray[i].usID, dataArray[i].cName, dataArray[i].cPhoneNo);
+			fprintf(outputfile,"%d %s %s\n", dataArray[i].usID, dataArray[i].cName, dataArray[i].cPhoneNo);
 			printf("%d, %s, %s\n", dataArray[i].usID, dataArray[i].cName, dataArray[i].cPhoneNo);
 	}
   fclose(outputfile);          // ファイルをクローズ(閉じる)
