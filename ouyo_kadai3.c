@@ -42,14 +42,12 @@ int main(void){
 	char name[20];
 	char phoneNo[15];
 	BOOL j;
-	// 10はPersonaldataの要素数
+
 	while (m < 10) {
 		printf("nameを入力してください。");
 	  scanf("%s", name);
 		printf("phoneNoを入力してください。");
 		scanf("%s", phoneNo);
-		printf("idを入力してください。");
-		scanf("%d", &id);
 		l=0;
 		while (name[l] != '\0'){
 			l++;
@@ -82,9 +80,10 @@ int main(void){
 		}
 		else{
 			m++;
+			id++;
 		}
 	}
-	unsigned short num = count;
+	unsigned short num = 9;
 	char fileName[20] = "data.txt";
 	// Step1-2関数ｰ
 	j = WritePersonalDataArray(data, num, fileName);
@@ -101,15 +100,11 @@ int main(void){
 SetPersonalData(PersonalData * data, unsigned short id, char * name, char * phoneNo){
     //int i;
     //for(i=0; i<10; i++){
-			int d;
-			int check = 0;
-			// PersonalDataの要素数
-			data[id].usID = id;
-			strcpy(data[id].cName, name);
-			strcpy(data[id].cPhoneNo, phoneNo);
-			printf("%d %s %s\n", data[id].usID, data[id].cName, data[id].cPhoneNo);
-      count++;
-
+				data[count].usID = id;
+				strcpy(data[count].cName, name);
+				strcpy(data[count].cPhoneNo, phoneNo);
+				printf("%d %s %s\n", data[count].usID, data[count].cName, data[count].cPhoneNo);
+        count++;
     //}
 		if(data == NULL || name == NULL || phoneNo == NULL){
 			return FALSE;
@@ -132,7 +127,7 @@ WritePersonalDataArray(PersonalData * dataArray, unsigned short num,char * fileN
 		return FALSE;
   }
 	for(i=0; i<num; i++){
-			fprintf(outputfile,"%d %s %s\n", dataArray[i].usID, dataArray[i].cName, dataArray[i].cPhoneNo);
+			fprintf(outputfile,"%d, %s, %s\n", dataArray[i].usID, dataArray[i].cName, dataArray[i].cPhoneNo);
 			printf("%d, %s, %s\n", dataArray[i].usID, dataArray[i].cName, dataArray[i].cPhoneNo);
 	}
   fclose(outputfile);          // ファイルをクローズ(閉じる)
