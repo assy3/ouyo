@@ -203,8 +203,10 @@ l_Error:
 }
 
 GetPersonalData(PersonalData * data, unsigned short * id, char * name, char * phoneNo){
+	if (data == NULL || id == NULL || name == NULL || phoneNo == NULL){
+			goto l_Error;
+	}
     *id = data->usID;
-
     name[sizeof(*name)] = '\0';
     phoneNo[sizeof(*phoneNo)] = '\0';
     strcpy(name, data->cName);     /* 文字型配列に文字型配列をコピー */
@@ -223,8 +225,12 @@ l_Error:
 
 
 SearchPersonalDataByID(unsigned short id, PersonalData * data){
+	if (data == NULL){
+			goto l_Error;
+	}
 		unsigned short c_id;
 		int y;
+		int check_id = 1;
 
 		printf("before %d %s %s \n", data->usID, data->cName, data->cPhoneNo);
 		// pos番目のデータをdataのアドレスに格納
@@ -241,9 +247,16 @@ SearchPersonalDataByID(unsigned short id, PersonalData * data){
 				fread(data->cPhoneNo, 15, 1, g_fp);
 				printf("data->cPhoneNo %s \n", data->cPhoneNo);
 			}
-
-			printf("c_id %d \n", c_id);
-			fseek(g_fp,(g_packed_kouzoutai - 2), SEEK_CUR);
+			else{
+				printf("c_id %d \n", c_id);
+				fseek(g_fp,(g_packed_kouzoutai - 2), SEEK_CUR);
+				check_id++;
+			}
+		}
+		// 条件位一致するデータが無い場合
+		if(check_id != g_count){
+			printf("条件に一致するデータはありません\n");
+			goto l_Error;
 		}
 
 		printf("after %d %s %s \n", data->usID, data->cName, data->cPhoneNo);
@@ -256,15 +269,17 @@ l_Error:
 	goto l_EXIT;
 }
 
-
-
 SearchPersonalDataByName(char * name, PersonalData * data){
+	if (name == NULL || data == NULL){
+			goto l_Error;
+	}
 	//printf("before %d %s %s \n", data->usID, data->cName, data->cPhoneNo);
 	//printf("name %s\n", name);
 	char sreach_name[20];
 	int y;
 	int i;
 	int flag = 0;
+	int check_name = 0;
 	fseek(g_fp, 2 , SEEK_CUR);
 
 	for(y = 0; y < g_count; y++){
@@ -294,7 +309,13 @@ SearchPersonalDataByName(char * name, PersonalData * data){
 		}
 		else{
 			fseek(g_fp, 17 , SEEK_CUR);
+			check_name++;
 		}
+}
+// 条件位一致するデータが無い場合
+if(check_name != g_count){
+	printf("条件に一致するデータはありません\n");
+	goto l_Error;
 }
 	printf("同じ文字みつからない\n");
 	ret = TRUE;
