@@ -1,0 +1,5 @@
+1	22	aka
+6	14	ao
+4	15	kiiro
+7	16	kuro
+3	12	midori

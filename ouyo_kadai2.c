@@ -259,7 +259,7 @@ BOOL SetBit(BYTE * num, int bit, BOOL onFlg){
 }
 
 
-int main() {
+void main() {
 	DWORD i = 123456;
 	DWORD len = 10;
 	BYTE num = 255;
@@ -281,4 +281,4 @@ int main() {
 	onFlg2 = FALSE;
 	SetBit(&num, bit, onFlg2);
 
-	}
+}
