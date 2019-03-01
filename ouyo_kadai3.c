@@ -228,6 +228,7 @@ SearchPersonalDataByID(unsigned short id, PersonalData * data){
 
 		printf("before %d %s %s \n", data->usID, data->cName, data->cPhoneNo);
 		// pos番目のデータをdataのアドレスに格納
+		//openの時にポインタが2進からなくてもいい
 		fseek(g_fp, 2 , SEEK_SET);
 
 		for(y = 0; y < g_count; y++){
@@ -259,16 +260,19 @@ l_Error:
 
 SearchPersonalDataByName(char * name, PersonalData * data){
 	printf("before %d %s %s \n", data->usID, data->cName, data->cPhoneNo);
-	printf("name %d\n", name);
+	printf("name %s\n", name);
 	char sreach_name[20];
 	int y;
 	int i = 0;
 	int flag = 0;
-	fseek(g_fp, 2 , SEEK_SET);
+	fseek(g_fp, 2 , SEEK_CUR);
 
 	for(y = 0; y < g_count; y++){
+		flag = 0;
 		fread(sreach_name, 20, 1, g_fp);
-		printf("sreach_name %d\n", sreach_name);
+		//終端記号
+		//sreach_name[sizeof(*sreach_name)] = '\0';
+		printf("sreach_name %s\n", sreach_name);
 		while(name[i]!='\0' && sreach_name[i]!='\0'){
 				if(name[i]!=sreach_name[i]){
 					flag=1;
@@ -280,13 +284,12 @@ SearchPersonalDataByName(char * name, PersonalData * data){
 			printf("同じ文字みつかった\n");
 			strcpy(data->cName, sreach_name);
 			printf("data->cName %s \n", data->cName);
-		}
 			fseek(g_fp, 17 , SEEK_CUR);
+		}
+		else{
+			fseek(g_fp, 17 , SEEK_CUR);
+		}
 }
-
-
-
-
 
 	ret = TRUE;
 l_EXIT:
