@@ -166,11 +166,11 @@ ReadPersonalData(unsigned short pos, PersonalData * data){
     */
     //fseek(g_fp, 3, SEEK_CUR);
     //  sizeof(*data)-1 37バイト
-		printf("before %d %s %s \n", data->usID, data->cName, data->cPhoneNo);
+		//printf("before %d %s %s \n", data->usID, data->cName, data->cPhoneNo);
 		// pos番目のデータをdataのアドレスに格納
 		fseek(g_fp, 2 + ((pos - 1) * g_packed_kouzoutai), SEEK_SET);
     fread(data, g_packed_kouzoutai, 1, g_fp);
-		printf("after %d %s %s \n", data->usID, data->cName, data->cPhoneNo);
+		//printf("after %d %s %s \n", data->usID, data->cName, data->cPhoneNo);
     // データ読み込みが正しくない
 
     //fread(data, sizeof(data->usID), 1, g_fp);
@@ -235,9 +235,9 @@ SearchPersonalDataByID(unsigned short id, PersonalData * data){
 			fread(&c_id, 2, 1, g_fp);
 			if(c_id == id){
 				data->usID = c_id;
-				printf("data->usID %d \n", data->usID);
+				printf("data->usID %d  ", data->usID);
 				fread(data->cName, 20, 1, g_fp);
-				printf("data->cName %s \n", data->cName);
+				printf("data->cName %s  ", data->cName);
 				fread(data->cPhoneNo, 15, 1, g_fp);
 				printf("data->cPhoneNo %s \n", data->cPhoneNo);
 			}
@@ -259,11 +259,11 @@ l_Error:
 
 
 SearchPersonalDataByName(char * name, PersonalData * data){
-	printf("before %d %s %s \n", data->usID, data->cName, data->cPhoneNo);
-	printf("name %s\n", name);
+	//printf("before %d %s %s \n", data->usID, data->cName, data->cPhoneNo);
+	//printf("name %s\n", name);
 	char sreach_name[20];
 	int y;
-	int i = 0;
+	int i;
 	int flag = 0;
 	fseek(g_fp, 2 , SEEK_CUR);
 
@@ -272,7 +272,8 @@ SearchPersonalDataByName(char * name, PersonalData * data){
 		fread(sreach_name, 20, 1, g_fp);
 		//終端記号
 		//sreach_name[sizeof(*sreach_name)] = '\0';
-		printf("sreach_name %s\n", sreach_name);
+		i = 0;
+		// printf("sreach_name %s\n", sreach_name);
 		while(name[i]!='\0' && sreach_name[i]!='\0'){
 				if(name[i]!=sreach_name[i]){
 					flag=1;
@@ -282,15 +283,20 @@ SearchPersonalDataByName(char * name, PersonalData * data){
 		}
 		if(flag == 0){
 			printf("同じ文字みつかった\n");
+			data->usID = y + 1;
+			printf("data->usID %d  ", data->usID);
 			strcpy(data->cName, sreach_name);
-			printf("data->cName %s \n", data->cName);
-			fseek(g_fp, 17 , SEEK_CUR);
+			printf("data->cName %s  ", data->cName);
+			fread(data->cPhoneNo, 15, 1, g_fp);
+			printf("data->cPhoneNo %s \n", data->cPhoneNo);
+			fseek(g_fp, 2 , SEEK_CUR);
+			goto l_EXIT;
 		}
 		else{
 			fseek(g_fp, 17 , SEEK_CUR);
 		}
 }
-
+	printf("同じ文字みつからない\n");
 	ret = TRUE;
 l_EXIT:
 	return ret;
@@ -306,6 +312,7 @@ int main(void){
     int i;
     int m = 0;
     int flag = 0;
+		int select = 0;
     char name[20];
     char phoneNo[15];
     BOOL j;
@@ -324,7 +331,6 @@ int main(void){
 
         // データセット関数呼び出し
         SetPersonalData((data + m), id, name, phoneNo);
-
         printf("データセットを続けない 1 続ける else \n");
         scanf("%d", &flag);
         if (flag == 1){
@@ -367,19 +373,28 @@ int main(void){
         printf("---------------\n");
     }
 
-		OpenPersonalData(fileName, &numRecords);
-		printf("何番目のidのデータを検索しますか？ (id)\n");
-		scanf("%u", &id);
-		// id検索
-		SearchPersonalDataByID(id, data);
-		//ファイルを閉じる関数
-		ClosePersonalData();
-
-		OpenPersonalData(fileName, &numRecords);
-		printf("検索するnameを入力してください(name)\n");
-		scanf("%s", name);
-		SearchPersonalDataByName(name, data);
-
+		printf("IDを検索する:0 名前を検索する:1\n");
+		scanf("%d", &select);
+		if(select == 0){
+				OpenPersonalData(fileName, &numRecords);
+				printf("何番目のidのデータを検索しますか？ (id)\n");
+				scanf("%u", &id);
+				// id検索
+				SearchPersonalDataByID(id, data);
+				//ファイルを閉じる関数
+				ClosePersonalData();
+		}
+		else if(select == 1){
+				OpenPersonalData(fileName, &numRecords);
+				printf("検索するnameを入力してください(name)\n");
+				scanf("%s", name);
+				SearchPersonalDataByName(name, data);
+				//ファイルを閉じる関数
+				ClosePersonalData();
+		}
+		else{
+			printf("正しい数字を入力してください\n");
+		}
 
     getchar();
     getchar();
