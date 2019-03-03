@@ -2,7 +2,6 @@
 #include <windows.h>
 #include <string.h>
 #define STR_LEN (30)
-
 static BOOL ret;
 static unsigned short g_count = 0;
 static unsigned short g_packed_kouzoutai;
