@@ -227,49 +227,36 @@ SearchPersonalDataByName(char * name, PersonalData * data){
 	//printf("before %d %s %s \n", data->usID, data->cName, data->cPhoneNo);
 	//printf("name %s\n", name);
 	char sreach_name[20];
-	int y;
 	int i;
-	int flag = 0;
-	int check_name = 0;
+	int check_name_num = 0;
+	//ファイルOpen時に2バイト進んでいる
 	fseek(g_fp, 2 , SEEK_CUR);
 
-	for(y = 0; y < g_count; y++){
-		flag = 0;
+	for(i = 0; i < g_count; i++){
 		fread(sreach_name, 20, 1, g_fp);
-		//終端記号
-		//sreach_name[sizeof(*sreach_name)] = '\0';
-		i = 0;
-		// printf("sreach_name %s\n", sreach_name);
-		while(name[i]!='\0' && sreach_name[i]!='\0'){
-				if(name[i]!=sreach_name[i]){
-					flag=1;
-					break;
-				}
-				i++;
-		}
-		if(flag == 0){
+
+		if(strcmp(name, sreach_name) == 0){
 			printf("同じ文字みつかった\n");
-			data->usID = y + 1;
-			printf("data->usID %d  ", data->usID);
+			data->usID = i + 1;
 			strcpy(data->cName, sreach_name);
-			printf("data->cName %s  ", data->cName);
 			fread(data->cPhoneNo, 15, 1, g_fp);
-			printf("data->cPhoneNo %s \n", data->cPhoneNo);
+			//printf("data->cPhoneNo %s \n", data->cPhoneNo);
 			fseek(g_fp, 2 , SEEK_CUR);
+			ret = TRUE;
 			goto l_EXIT;
 		}
 		else{
 			fseek(g_fp, 17 , SEEK_CUR);
-			check_name++;
+			check_name_num++;
 		}
 }
 // 条件位一致するデータが無い場合
-if(check_name != g_count){
+if(check_name_num != g_count){
 	printf("条件に一致するデータはありません\n");
 	goto l_Error;
 }
-	printf("同じ文字みつからない\n");
 	ret = TRUE;
+
 l_EXIT:
 	return ret;
 l_Error:
@@ -302,7 +289,7 @@ int main(void){
 					printf("データセットに失敗しました\n");
 				}
 
-        printf("データセットを続けない 1 続ける else \n\n");
+        printf("データセットを続けない 1 続ける else \n");
         scanf("%d", &flag);
         if (flag == 1){
             break;
