@@ -6,7 +6,7 @@ static BOOL ret;
 static unsigned short g_count = 0;
 static unsigned short g_packed_kouzoutai;
 
-FILE *g_fp;         // 出力ストリーム
+FILE *g_fp;   // 出力ストリーム
 
 // 課題3
 // バイト境界4バイト
@@ -50,7 +50,7 @@ SetPersonalData(PersonalData * data, unsigned short id, char * name, char * phon
     data->usID = id;
     strcpy(data->cName, name);
     strcpy(data->cPhoneNo, phoneNo);
-    printf("%d %s %s\n", data->usID, data->cName, data->cPhoneNo);
+    printf("id = %d cName = %s cPhoneNo = %s\n", data->usID, data->cName, data->cPhoneNo);
     g_count++;
 
 l_EXIT:
@@ -81,7 +81,6 @@ WritePersonalDataArray(PersonalData * dataArray, unsigned short num, char * file
     // 重複するidの処理
     for (i = 0; i < num; i++){
         for (j = 0; j < num; j++){
-            //printf("%d, %d \n", dataArray[i].usID, dataArray[j].usID);
             if (i != j){
                 if (dataArray[i].usID == dataArray[j].usID){
                     goto l_Error;
@@ -89,32 +88,20 @@ WritePersonalDataArray(PersonalData * dataArray, unsigned short num, char * file
             }
         }
     }
-
+		//データ数2バイト
     fwrite(&g_count, sizeof(g_count), 1, outputfile);
-		/*
-		// データ書き込みが正しくない
-    if (write_size != g_packed_kouzoutai){
-        goto l_Error;
-    }
-		*/
+		// 37バイト分の構造体データを書き込む
     for (i = 0; i<num; i++){
       	fwrite(dataArray, g_packed_kouzoutai, 1, outputfile);
-
-        //fwrite(dataArray, sizeof(dataArray->usID), 1, outputfile);
-        //fwrite(dataArray, sizeof(dataArray->cName), 1, outputfile);
-        //fwrite(dataArray, sizeof(dataArray->cPhoneNo), 1, outputfile);
-        //printf("%d\n", dataArray);
         dataArray++;
     }
     fclose(outputfile);          // ファイルをクローズ(閉じる)
     ret = TRUE;
-
 l_EXIT:
     return ret;
 l_Error:
     ret = FALSE;
     goto l_EXIT;
-
 }
 
 OpenPersonalData(char * fileName, unsigned short * numRecords){
@@ -125,16 +112,9 @@ OpenPersonalData(char * fileName, unsigned short * numRecords){
     if (g_fp == NULL) {          // 読み込みに失敗した場合
         goto l_Error;
     }
-      //else if (temp = openfile){ //既にファイルがオープンされている場合
-    //  goto l_Error;
-    //}
-
   	fread(numRecords, sizeof(*numRecords), 1, g_fp);
     // closeはしない
-    // データ読み込みが正しくない
-
-    //printf("numRecords = %u\n", *numRecords);
-    //printf("numRecords = %u\n", numRecords);
+		ret = TRUE;
 
 l_EXIT:
     return ret;
@@ -150,32 +130,11 @@ ReadPersonalData(unsigned short pos, PersonalData * data){
     else if (pos < 0 || pos > g_count){
         goto l_Error;
     }
-      /*
-    int k;
-    for (k = 0; k < pos; k++){
-        fread(data + pos, sizeof(*data)-1, 1, g_fp);
-    }
-    */
-
-    /*
-    int check;
-    check = fseek(g_fp, 3, SEEK_SET);   if (check != 0){
-        printf("やりなおし\n");
-    }
-    */
-    //fseek(g_fp, 3, SEEK_CUR);
-    //  sizeof(*data)-1 37バイト
-		//printf("before %d %s %s \n", data->usID, data->cName, data->cPhoneNo);
 		// pos番目のデータをdataのアドレスに格納
+		// 2はファイルの先頭にあるデータ数2バイトのこと
 		fseek(g_fp, 2 + ((pos - 1) * g_packed_kouzoutai), SEEK_SET);
     fread(data, g_packed_kouzoutai, 1, g_fp);
-		//printf("after %d %s %s \n", data->usID, data->cName, data->cPhoneNo);
-    // データ読み込みが正しくない
-
-    //fread(data, sizeof(data->usID), 1, g_fp);
-    //fread(data, sizeof(data->cName), 1, g_fp);
-    //fread(data, sizeof(data->cPhoneNo), 1, g_fp);
-
+		ret = TRUE;
 l_EXIT:
     return ret;
 l_Error:
@@ -193,6 +152,7 @@ ClosePersonalData(void){
     if (close != 0){
         goto l_Error;
     }
+		ret = TRUE;
 
 l_EXIT:
     return ret;
@@ -206,8 +166,8 @@ GetPersonalData(PersonalData * data, unsigned short * id, char * name, char * ph
 			goto l_Error;
 	}
     *id = data->usID;
-    name[sizeof(*name)] = '\0';
-    phoneNo[sizeof(*phoneNo)] = '\0';
+    //name[sizeof(*name)] = '\0';
+    //phoneNo[sizeof(*phoneNo)] = '\0';
     strcpy(name, data->cName);     /* 文字型配列に文字型配列をコピー */
     strcpy(phoneNo, data->cPhoneNo);     /* 文字型配列に文字型配列をコピー */
 
@@ -217,9 +177,6 @@ l_EXIT:
 l_Error:
     ret = FALSE;
     goto l_EXIT;
-    //printf("*id-----------------%d\n", *id);
-    //printf("name-----------------%s\n", name);
-    //printf("phoneNo-----------------%s\n", phoneNo);
 }
 
 
@@ -228,7 +185,7 @@ SearchPersonalDataByID(unsigned short id, PersonalData * data){
 			goto l_Error;
 	}
 		unsigned short c_id;
-		int y;
+		int i;
 		int check_id = 1;
 
 		printf("before %d %s %s \n", data->usID, data->cName, data->cPhoneNo);
@@ -236,18 +193,15 @@ SearchPersonalDataByID(unsigned short id, PersonalData * data){
 		//openの時にポインタが2進からなくてもいい
 		fseek(g_fp, 2 , SEEK_SET);
 
-		for(y = 0; y < g_count; y++){
+		for(i = 0; i < g_count; i++){
 			fread(&c_id, 2, 1, g_fp);
 			if(c_id == id){
 				data->usID = c_id;
-				printf("data->usID %d  ", data->usID);
 				fread(data->cName, 20, 1, g_fp);
-				printf("data->cName %s  ", data->cName);
 				fread(data->cPhoneNo, 15, 1, g_fp);
-				printf("data->cPhoneNo %s \n", data->cPhoneNo);
 			}
 			else{
-				printf("c_id %d \n", c_id);
+				// cNameとcPhoneの35バイトすすめる　
 				fseek(g_fp,(g_packed_kouzoutai - 2), SEEK_CUR);
 				check_id++;
 			}
@@ -257,8 +211,6 @@ SearchPersonalDataByID(unsigned short id, PersonalData * data){
 			printf("条件に一致するデータはありません\n");
 			goto l_Error;
 		}
-
-		printf("after %d %s %s \n", data->usID, data->cName, data->cPhoneNo);
 
 	ret = TRUE;
 l_EXIT:
@@ -326,6 +278,7 @@ l_Error:
 }
 
 
+
 int main(void){
     PersonalData data[10];
     unsigned short id = 1;
@@ -335,23 +288,21 @@ int main(void){
 		int select = 0;
     char name[20];
     char phoneNo[15];
-    BOOL j;
-
+		BOOL check;
     g_packed_kouzoutai = sizeof(data->usID) + sizeof(data->cName) + sizeof(data->cPhoneNo);
 
     while (m < 10) {
         printf("nameを入力してください。");
-        //memset(name, 0, sizeof(name));
-        //printf("name %s", name);
         scanf("%s", name);
-
         printf("phoneNoを入力してください。");
-        //memset(phoneNo, 0, sizeof(phoneNo));
         scanf("%s", phoneNo);
-
         // データセット関数呼び出し
-        SetPersonalData((data + m), id, name, phoneNo);
-        printf("データセットを続けない 1 続ける else \n");
+        check = SetPersonalData((data + m), id, name, phoneNo);
+				if(check == FALSE){
+					printf("データセットに失敗しました\n");
+				}
+
+        printf("データセットを続けない 1 続ける else \n\n");
         scanf("%d", &flag);
         if (flag == 1){
             break;
@@ -364,31 +315,39 @@ int main(void){
 
     unsigned short num = g_count;
     char fileName[20] = "data.dat";
-		//char fileName[20] = "data.txt";
-    // ファイル出力関数呼ぶ出し
-    WritePersonalDataArray(data, num, fileName);
+    // ファイル出力関数呼び出し
+    check = WritePersonalDataArray(data, num, fileName);
+		if(check == FALSE){
+			printf("ファイル出力に失敗しました\n");
+		}
 
     unsigned short numRecords;
     unsigned short position;
     // ファイルオープン関数呼び出し
-    OpenPersonalData(fileName, &numRecords);
-
+    check = OpenPersonalData(fileName, &numRecords);
+		if(check == FALSE){
+			printf("ファイルオープンに失敗しました\n");
+		}
 		printf("何番目のデータを格納しますか？ (position)\n");
 		scanf("%u", &position);
     //ファイルの読み込みを行なう関数
-    ReadPersonalData(position, data);
-
+    check = ReadPersonalData(position, data);
+		if(check == FALSE){
+			printf("ファイル読み込みに失敗しました\n");
+		}
+		printf("格納しました\n");
     //ファイルを閉じる関数
-    ClosePersonalData();
+    check = ClosePersonalData();
+		if(check == FALSE){
+			printf("ファイルクローズに失敗しました\n");
+		}
 
-    int p = 0;
     for (i = 0; i < g_count; i++){
         //データの解釈を行なう関数
-        GetPersonalData(data + i, &id, name, phoneNo);
-
-        while (name[p] == '\0'){
-            p++;
-        }
+        check = GetPersonalData(data + i, &id, name, phoneNo);
+				if(check == FALSE){
+					printf("データ解釈に失敗しました\n");
+				}
         printf("id  %d  name  %s  phoneNo  %s\n",id, name, phoneNo);
         printf("---------------\n");
     }

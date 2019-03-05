@@ -54,16 +54,29 @@ OWLInitList(OneWayList * list){
 }
 
 OWLInsertObjToFirst(OneWayList * list, void * obj){
+	// 先頭から表示するので、現在の位置をCurrentNodePtrにセット。
+	list->CurrentNodePtr = list->FirstNodePtr;
 		printf("-------------------------------------\n");
 		OneWayListNode *newNodePos;
 		//8バイト
 		newNodePos = (OneWayListNode *)malloc(sizeof(OneWayListNode));
+
+		if (list->FirstNodePtr == NULL)
+		{
+				// 表示するものがない場合は何もせずにreturn。
+				printf("リストは空です。\n");
+				list->FirstNodePtr = newNodePos;
+				list->CurrentNodePtr = newNodePos;
+		}
+
+
 		//キャスト
 		PersonalData *pobj = (PersonalData *)obj;
 		printf("%d\n", pobj->usID);
 		printf("%s\n", pobj->cName);
 		printf("%s\n", pobj->cPhoneNo);
 
+		list->CurrentNodePtr = list->FirstNodePtr;
 		list->FirstNodePtr = newNodePos;
 
 
@@ -71,7 +84,7 @@ OWLInsertObjToFirst(OneWayList * list, void * obj){
 		printf("newNodePos->ObjNodePtr %d \n", newNodePos->ObjNodePtr);
 		//ポインタ型4バイト
 		newNodePos->ObjNodePtr = pobj;
-		newNodePos->NextNodePtr = NULL;
+		newNodePos->NextNodePtr = list->CurrentNodePtr;
 		printf("newNodePos->ObjNodePtr %d \n", newNodePos->ObjNodePtr);
 		//newNodePos->ObjNodePtr = pobj;
 		printf("list->FirstNodePtr %d\n", list->FirstNodePtr);
@@ -109,6 +122,41 @@ OWLAddObjToLast(OneWayList * list, void * obj){
 }
 
 
+//STEP2
+OWLGetFirstObj(OneWayList * list, void ** obj){
+	printf("STEP2\n");
+	//キャスト
+	PersonalData **ppobj = (PersonalData **)obj;
+	ppobj = list->FirstNodePtr->ObjNodePtr;
+	PersonalData *robj = ppobj;
+	printf("%d\n", robj->usID);
+	printf("%s\n", robj->cName);
+	printf("%s\n", robj->cPhoneNo);
+	list->CurrentNodePtr = list->FirstNodePtr;
+
+	return TRUE;
+}
+
+OWLGetNextObj(OneWayList * list, void ** obj){
+	printf("STEP2-1\n");
+	//キャスト
+	PersonalData **ppobj = (PersonalData **)obj;
+	PersonalData **next = (PersonalData **)obj;
+	ppobj = list->CurrentNodePtr->ObjNodePtr;
+	next = list->CurrentNodePtr->NextNodePtr;
+ 	PersonalData *robj = ppobj;
+	printf("%d\n", robj->usID);
+	printf("%s\n", robj->cName);
+	printf("%s\n", robj->cPhoneNo);
+	list->CurrentNodePtr = next;
+
+	return TRUE;
+}
+
+
+
+
+
 
 int main(void){
 	OneWayList list;
@@ -124,7 +172,17 @@ int main(void){
 	(data + 1)-> usID = 2;
 	strcpy((data + 1)->cName, "tanaka");
 	strcpy((data + 1)->cPhoneNo, "999999999999999");
-	OWLAddObjToLast(&list, (data + 1));
+	OWLInsertObjToFirst(&list, (data+1));
+	(data + 2)-> usID = 3;
+	strcpy((data + 2)->cName, "marukusu");
+	strcpy((data + 2)->cPhoneNo, "654364745");
+	OWLAddObjToLast(&list, (data + 2));
+
+
+	void **DataPtr;
+	OWLGetFirstObj(&list, DataPtr);
+
+	OWLGetNextObj(&list, DataPtr);
 
 
 
